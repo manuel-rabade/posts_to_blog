@@ -168,7 +168,7 @@ def build_threads(tweets, after=False, before=False, timezone=None):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Functions for building a Hugo post and debugging threads
 
-def build_post(t, author=None, tag=None):
+def build_post(t, author=None, tag=None, unsafe=False):
     """
     Builds a Hugo post from a tweet thread, returning the markdown content and a media catalog.
 
@@ -176,6 +176,7 @@ def build_post(t, author=None, tag=None):
         t (Tweet): The main Tweet object representing the thread.
         author (str, optional): Author name to include in the post metadata. Defaults to None.
         tag (str, optional): Tag to include in the post metadata. Defaults to None.
+        unsafe (bool): If True, use HTML video tag for videos. Requires setting `unsafe` to True in Hugo markup configuration. Defaults to False.
 
     Returns:
         tuple: A tuple containing:
@@ -233,16 +234,22 @@ def build_post(t, author=None, tag=None):
     for url, media_list in media_urls.items():
         tags = []
         for m in media_list:
-            orig_filename = f"{m.tweet_id}-{os.path.basename(urllib.parse.urlparse(m.media).path)}"
-            new_filename = f"{media_count}.{os.path.splitext(orig_filename)[1][1:]}"
-            tags.append(f"![{orig_filename}]({new_filename})")
-            media_files[orig_filename] = new_filename
+            orig_media = f"{m.tweet_id}-{os.path.basename(urllib.parse.urlparse(m.media).path)}"
+            new_media = f"{media_count}.{os.path.splitext(orig_media)[1][1:]}"
+            media_files[orig_media] = new_media
+            if m.type in ["video", "animated_gif"]:
+                if unsafe:
+                    tags.append(f"<video src='{new_media}' controls></video>")
+                else:
+                    tags.append(f"[Video]({new_media})")
+            else:
+                tags.append(f"[![]({new_media})]({new_media})")
             media_count += 1
         text = text.replace(url, "\n\n" + "\n".join(tags))
 
     # Append thread text to markdown and return post body plus media files catalog
     md.append(text)
-    return "\n".join(md) + "\n", media_files
+    return "\n".join(md), media_files
 
 def debug_thread(t):
     """
@@ -271,6 +278,7 @@ if __name__ == "__main__":
     parser.add_argument("--timezone", type=str, help="Specify local timezone for tweets")
     parser.add_argument("--author", type=str, help="Author metadata for markdown files")
     parser.add_argument("--tag", type=str, help="Tag metadata for markdown files")
+    parser.add_argument("--unsafe", action=argparse.BooleanOptionalAction, help="Use HTML video tag, requires enabling `unsafe` in Hugo markup configuration")
     parser.add_argument("--csv", type=argparse.FileType("w"), help="CSV file output for threads")
     parser.add_argument("--username", type=str, help="Twitter username for CSV links")
     args = parser.parse_args()
@@ -288,7 +296,7 @@ if __name__ == "__main__":
     args.output.mkdir(parents=True, exist_ok=True)
     for id in sorted(threads.keys(), reverse=True):
         t = threads[id]
-        body, media = build_post(t, author=args.author, tag=args.tag)
+        body, media = build_post(t, author=args.author, tag=args.tag, unsafe=args.unsafe)
         if media:
             # If media is present, create a directory to store media and markdown files
             post_dir = args.output / f"{t.created.strftime('%Y%m%d')}-{t.id}"
