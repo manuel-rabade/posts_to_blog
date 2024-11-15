@@ -168,7 +168,7 @@ def build_threads(tweets, after=False, before=False, timezone=None):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Functions for building a Hugo post and debugging threads
 
-def build_post(t, author=None, tag=None, unsafe=False):
+def build_post(t, author=None, tag=None, unsafe=False, origin=None, username=None):
     """
     Builds a Hugo post from a tweet thread, returning the markdown content and a media catalog.
 
@@ -176,7 +176,9 @@ def build_post(t, author=None, tag=None, unsafe=False):
         t (Tweet): The main Tweet object representing the thread.
         author (str, optional): Author name to include in the post metadata. Defaults to None.
         tag (str, optional): Tag to include in the post metadata. Defaults to None.
-        unsafe (bool): If True, use HTML video tag for videos. Requires setting `unsafe` to True in Hugo markup configuration. Defaults to False.
+        unsafe (bool, optional): If True, use HTML video tag for videos. Requires setting `unsafe` to True in Hugo markup configuration. Defaults to False.
+        origin (str, optional): If specified, appends a link to the original tweet at the end of the post, using this text as the link text. Defaults to None.
+        username (str, optional): Twitter username for link to the original tweet.
 
     Returns:
         tuple: A tuple containing:
@@ -247,6 +249,10 @@ def build_post(t, author=None, tag=None, unsafe=False):
             media_count += 1
         text = text.replace(url, "\n\n" + "\n".join(tags))
 
+    # Include link to original tweet if origin text is specified
+    if origin:
+        text += "\n" + f"[{origin}](https://x.com/{username}/status/{t.id})\n"
+
     # Append thread text to markdown and return post body plus media files catalog
     md.append(text)
     return "\n".join(md), media_files
@@ -279,8 +285,9 @@ if __name__ == "__main__":
     parser.add_argument("--author", type=str, help="Author metadata for markdown files")
     parser.add_argument("--tag", type=str, help="Tag metadata for markdown files")
     parser.add_argument("--unsafe", action=argparse.BooleanOptionalAction, help="Use HTML video tag, requires enabling `unsafe` in Hugo markup configuration")
-    parser.add_argument("--csv", type=argparse.FileType("w"), help="CSV file output for threads")
-    parser.add_argument("--username", type=str, help="Twitter username for CSV links")
+    parser.add_argument("--username", type=str, help="Twitter username for links")
+    parser.add_argument("--origin", type=str, help="Text for the link to the original tweet in each generated post")
+    parser.add_argument("--csv", type=argparse.FileType("w"), help="CSV file output for debug")
     args = parser.parse_args()
 
     # Load tweets from the specified archive
@@ -296,7 +303,7 @@ if __name__ == "__main__":
     args.output.mkdir(parents=True, exist_ok=True)
     for id in sorted(threads.keys(), reverse=True):
         t = threads[id]
-        body, media = build_post(t, author=args.author, tag=args.tag, unsafe=args.unsafe)
+        body, media = build_post(t, author=args.author, tag=args.tag, unsafe=args.unsafe, origin=args.origin, username=args.username)
         if media:
             # If media is present, create a directory to store media and markdown files
             post_dir = args.output / f"{t.created.strftime('%Y%m%d')}-{t.id}"
