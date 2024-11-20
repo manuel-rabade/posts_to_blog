@@ -7,11 +7,17 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-dacite = "^1.8.1"
 pyyaml = "^6.0.2"
 pytz = "^2024.2"
 python-dateutil = "^2.9.0.post0"
 
+[tool.poetry.group.vertexai.dependencies]
+google-cloud-aiplatform = "^1.72.0"
+grpcio = "1.60.1"
+
+
+[tool.poetry.group.bedrock.dependencies]
+boto3 = "^1.35.63"
 
 [build-system]
 requires = ["poetry-core"]

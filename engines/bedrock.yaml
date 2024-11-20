@@ -1,0 +1,8 @@
+type: bedrock
+params:
+  region: us-west-2
+  model: anthropic.claude-3-5-sonnet-20241022-v2:0
+backoff:
+  rate: 2
+  limit: 5
+  delay: 2

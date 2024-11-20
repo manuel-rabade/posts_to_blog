@@ -1,0 +1,8 @@
+type: vertexai
+params:
+  location: us-central1
+  model: gemini-1.5-pro-002
+backoff:
+  rate: 3
+  limit: 10
+  delay: 2
