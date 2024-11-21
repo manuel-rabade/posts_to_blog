@@ -41,7 +41,25 @@ Invalid category error for 20200301-1234225309655822336
 40 elapsed minutes
 ```
 
+Applies category fixes and manages drafts based on a CSV file:
+
+```bash
+$ poetry run python fix_categories.py ../homepage/content/posts/ debug/categories-fixes.csv --apply
+154 posts found in otros
+1 drafts from otros
+1 posts fixed in otros
+26 posts found in tecnología
+7 drafts from tecnología
+20 posts fixed in tecnología
+83 posts found in cultura
+7 drafts from cultura
+12 posts fixed in cultura
+4 posts found in dudosos
+1 drafts from dudosos
+4 posts fixed in dudosos
+```
+
 ## TODO
 
-- [ ] Retrofit Post class in `tweets_to_hugo.py`
 - [ ] Break down `tweets_to_hugo.py`
+- [ ] Retrofit Post class in `tweets_to_hugo.py`
