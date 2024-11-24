@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "posts-to-blog"
+name = "posts_to_blog"
 version = "0.1.0"
 description = "Convert social media posts to blog posts"
 authors = ["Manuel Rabade <manuel@rabade.net>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
