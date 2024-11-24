@@ -54,8 +54,9 @@ if __name__ == "__main__":
 
         # Apply categorization changes if the apply flag is enabled
         if args.apply:
-            # Update the post metadata with the assigned category
-            p.metadata["categories"] = [ category ]
+            # Assign post tags to the specified category
+            p.metadata["tags"] = p.metadata.get("tags", [])
+            p.metadata["tags"].append(category)
             p.save()
 
             # Move the post to its category-specific directory

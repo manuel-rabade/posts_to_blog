@@ -56,8 +56,9 @@ for obj in os.scandir(args.posts):
         if args.verbose:
             print(f"   {p.extra["id"]}: {category_orig} -> {category_fix}")
 
-        # Update the category metadata and prepare to move the post
-        p.metadata["categories"] = [ category_fix if c == category_orig else c for c in p.metadata["categories"] ]
+        # Update the tag metadata and prepare to move the post
+        p.metadata["tags"] = [ tag for tag in p.metadata.get("tags", []) if tag != category_orig ]
+        p.metadata["tags"].append(category_fix)
         path_fix = args.posts / category_fix  # New category directory path
         fixed += 1
 
