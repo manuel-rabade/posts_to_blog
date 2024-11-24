@@ -78,5 +78,7 @@ class Post:
                 post = Post.load(filename)
             elif obj.is_file() and os.path.splitext(obj.name)[1] == ".md":
                 post = Post.load(obj.path)
+            else:
+                continue
             posts.append(post)
         return posts
