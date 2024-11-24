@@ -168,13 +168,14 @@ def build_threads(tweets, after=False, before=False, timezone=None):
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Functions for building a Hugo post and debugging threads
 
-def build_post(t, author=None, tag=None, unsafe=False, origin=None, username=None):
+def build_post(t, author=None, timezone=None, tag=None, unsafe=False, origin=None, username=None):
     """
     Builds a Hugo post from a tweet thread, returning the markdown content and a media catalog.
 
     Args:
         t (Tweet): The main Tweet object representing the thread.
         author (str, optional): Author name to include in the post metadata. Defaults to None.
+        timezone (str, optional): Specifies the timezone for the post timestamp. Defaults to None, indicating UTC.
         tag (str, optional): Tag to include in the post metadata. Defaults to None.
         unsafe (bool, optional): If True, use HTML video tag for videos. Requires setting `unsafe` to True in Hugo markup configuration. Defaults to False.
         origin (str, optional): If specified, appends a link to the original tweet at the end of the post, using this text as the link text. Defaults to None.
@@ -190,7 +191,10 @@ def build_post(t, author=None, tag=None, unsafe=False, origin=None, username=Non
     # Front matter metadata for the Hugo post
     md.append("---")
     md.append("title: " + str(t.id))
-    md.append("date: " + t.created.isoformat())
+    if timezone:
+        md.append("date: " + t.created.astimezone(pytz.timezone(timezone)).isoformat())
+    else:
+        md.append("date: " + t.created.isoformat())
     if author:
         md.append("author: " + author)
     if tag:
@@ -198,7 +202,7 @@ def build_post(t, author=None, tag=None, unsafe=False, origin=None, username=Non
     md.append("---")
 
     # Initialize thread text with URLs and media references
-    text = t.text + "\n"
+    text = t.text.strip() + "\n"
     urls = t.urls
     media = t.media
 
@@ -214,7 +218,7 @@ def build_post(t, author=None, tag=None, unsafe=False, origin=None, username=Non
         if text.endswith("...\n") and r.text.startswith("..."):
             text = text.rstrip("...\n") + r.text.lstrip("...") + "\n"
         else:
-            text += "\n" + r.text + "\n"
+            text += "\n" + r.text.strip() + "\n"
         urls.extend(r.urls)
         media.extend(r.media)
 
@@ -303,7 +307,7 @@ if __name__ == "__main__":
     args.output.mkdir(parents=True, exist_ok=True)
     for id in sorted(threads.keys(), reverse=True):
         t = threads[id]
-        body, media = build_post(t, author=args.author, tag=args.tag, unsafe=args.unsafe, origin=args.origin, username=args.username)
+        body, media = build_post(t, author=args.author, timezone=args.timezone, tag=args.tag, unsafe=args.unsafe, origin=args.origin, username=args.username)
         if media:
             # If media is present, create a directory to store media and markdown files
             post_dir = args.output / f"{t.created.strftime('%Y%m%d')}-{t.id}"

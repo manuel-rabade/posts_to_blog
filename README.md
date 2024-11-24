@@ -8,10 +8,10 @@ Convert tweets into Hugo posts:
 
 ```bash
 $ poetry run python tweets_to_hugo.py archive/ ../homepage/content/posts/ \
-    --after 2020-01-01 --author "Manuel Rábade" --tag twitter \
+    --after 2020-01-01 --author "Manuel Rábade" \
+    --timezone "Mexico/General" --unsafe \
     --csv threads.csv --username manuelrabade \
-    --unsafe \
-    --origin "Tweet original"
+    --tag twitter --origin "Tweet original"
 ```
 
 Categorize posts using the Claude Sonnet model deployed on AWS Bedrock:
