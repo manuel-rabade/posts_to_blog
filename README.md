@@ -14,31 +14,28 @@ $ poetry run python tweets_to_hugo.py archive/ ../homepage/content/posts/ \
     --tag twitter --origin "Tweet original"
 ```
 
+Categorize posts using the Gemini Pro model deployed on Google Vertex AI:
+
+```bash
+$ poetry run python curate_posts.py ../homepage/content/posts/ engines/vertexai.yaml prompts/categorize.yaml \
+    --csv debug/categories-gemini-pro.csv --apply
+263 posts found
+144629 prompt tokens
+20425 candidates tokens
+165054 total tokens
+40 elapsed minutes
+```
+
 Categorize posts using the Claude Sonnet model deployed on AWS Bedrock:
 
 ```bash
-$ poetry run python categorize_posts.py ../homepage/content/posts/ engines/bedrock.yaml prompts/categorize.yaml \
-    --csv debug/categories-claude-sonnet.csv \
-    --apply
+$ poetry run python curate_posts.py ../homepage/content/posts/ engines/bedrock.yaml prompts/categorize.yaml \
+    --csv debug/categories-claude-sonnet.csv --apply
 263 posts found
 178706 input tokens
 31422 output tokens
 210128 total tokens
 30 elapsed minutes
-```
-
-Categorize posts using the Gemini Pro model deployed on Google Vertex AI:
-
-```bash
-$ poetry run python categorize_posts.py ../homepage/content/posts/ engines/vertexai.yaml prompts/categorize.yaml \
-    --csv debug/categories-gemini-pro.csv \
-    --apply
-263 posts found
-Invalid category error for 20200301-1234225309655822336
-144629 prompt tokens
-20425 candidates tokens
-165054 total tokens
-40 elapsed minutes
 ```
 
 Applies category fixes and manages drafts based on a CSV file:
@@ -57,6 +54,30 @@ $ poetry run python fix_categories.py ../homepage/content/posts/ debug/categorie
 4 posts found in dudosos
 1 drafts from dudosos
 4 posts fixed in dudosos
+```
+
+Label posts using the Gemini Pro model deployed on Google Vertex AI:
+
+```bash
+$ poetry run python curate_posts.py tests/labels-gemini-pro/cultura engines/vertexai.yaml prompts/label-cultura.yaml \
+    --csv debug/labels-cultura-gemini-pro.csv --apply
+71 posts found
+70650 prompt tokens
+8177 candidates tokens
+78827 total tokens
+12 elapsed minutes
+```
+
+Label posts using the Claude Sonnet model deployed on AWS Bedrock:
+
+```bash
+ poetry run python curate_posts.py tests/labels-claude-sonnet/cultura/ engines/bedrock.yaml prompts/label-cultura.yaml \
+    --csv debug/labels-cultura-claude-sonnet.csv --apply
+71 posts found
+88235 input tokens
+9274 output tokens
+97509 total tokens
+22 elapsed minutes
 ```
 
 ## TODO
